@@ -54,6 +54,16 @@ dbExecute(con, "
     AND F1SYSNAM = 'State University of New York System'
     AND year = (SELECT max(year) FROM hd)")
 
+# Stop if the list is not the 29 colleges the README reports. The filter
+# depends on the exact system name, so a spelling change in a newer HD file
+# would otherwise shrink the list without any error.
+n_suny_cc <- dbGetQuery(con, "SELECT count(*) AS n FROM suny_cc")$n
+cat("SUNY community colleges found:", n_suny_cc, "\n")
+if (n_suny_cc != 29) {
+  stop("Expected 29 SUNY community colleges, found ", n_suny_cc,
+       ". Check F1SYSNAM in the newest HD file.")
+}
+
 # Comparison colleges: every SUNY community college within 10% of MCC's
 # fall 2024 headcount (see 03_peer_size.sql)
 dbExecute(con, "
